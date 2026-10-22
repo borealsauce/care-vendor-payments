@@ -1,0 +1,122 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><link rel="icon" href="data:,"><title>Care Vendor Payments</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--line:#262626;--gold:#e8b923;--txt:#f5f5f5;--muted:#a3a3a3;--red:#ff5a63;--gb:#e8b92347}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 500px at 50% -200px,#e8b9231a,transparent),var(--bg);color:var(--txt);font:14px Inter,system-ui,sans-serif}
+h1,h2{font-family:Oswald,sans-serif;margin:0;color:var(--gold);text-transform:uppercase}h1{letter-spacing:.08em;font-size:26px}
+h2{font-size:18px;margin:28px 0 10px;letter-spacing:.1em;font-weight:600;border-left:3px solid var(--gold);padding-left:10px}
+.top{background:linear-gradient(180deg,#0c0c0c,#050505);border-bottom:1px solid var(--gb);padding:18px 0;position:relative}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,#e8b923,transparent)}
+.w{max-width:1500px;margin:0 auto;padding:0 16px}.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:16px}
+.card,#gate form,.note{background:linear-gradient(180deg,#1c1c1c,#141414);border:1px solid var(--gb);border-radius:1rem;padding:14px}
+.card .l{font:600 11px Inter;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.card .v{font:700 26px Oswald;color:var(--gold);margin:4px 0}.card .s{font-size:12px;color:var(--muted)}
+.tw{overflow:auto;max-height:80vh;border-radius:1rem;border:1px solid var(--gb)}
+table{width:100%;border-collapse:collapse;background:#141414;color:var(--txt)}
+th,td{padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#0c0c0c;color:var(--gold);text-transform:uppercase;font:600 11px Inter;letter-spacing:.1em;border-bottom:1px solid var(--gold);position:sticky;top:0;z-index:2;white-space:nowrap}
+td{border-bottom:1px solid #202020;font-size:13px;min-width:110px}td.sc{font-weight:700;color:#fff;min-width:170px;position:sticky;left:0;background:#111;z-index:1}
+tr:nth-child(even) td{background:#0c0c0c66}tr:hover td{background:#e8b92314}
+td.wide{min-width:260px}.tag{display:inline-block;padding:2px 8px;border-radius:999px;font:700 11px Inter;white-space:nowrap;margin-bottom:4px}
+.g{background:#22c55e26;color:#4ade80;border:1px solid #22c55e66}.y{background:#facc1526;color:#fde047;border:1px solid #facc1566}.r{background:#ff2d3a22;color:#ff7b82;border:1px solid #ff2d3a55}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}.note h3{margin:0 0 6px;font:600 14px Oswald;letter-spacing:.08em;color:var(--gold);text-transform:uppercase}.note p{margin:6px 0;line-height:1.5;color:#d4d4d4}
+.src td{white-space:pre-line;line-height:1.45}.src td:first-child{font-weight:700;color:var(--gold);min-width:150px}
+#gate{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:9}#gate form{text-align:center}
+#gate input{font:18px Inter;padding:8px 12px;border:1px solid var(--gb);border-radius:8px;width:180px;text-align:center;background:#0c0c0c;color:var(--txt)}
+#gate button{margin-left:6px;font:700 15px Inter;padding:9px 16px;border:0;border-radius:999px;background:var(--gold);color:#050505;cursor:pointer}
+.neg{color:var(--red)}footer{margin:30px 0;color:var(--muted);font-size:12px}
+@media(max-width:640px){h1{font-size:20px}.card .v{font-size:22px}td.sc{min-width:120px}}
+</style></head><body>
+<style>td{min-width:90px}.y{color:#5ad17a;font-weight:700}.dup{color:var(--gold);font-size:11px}</style></head><body>
+<div class="top"><div class="w"><h1>Care Vendor Payments</h1><div class="muted" style="margin-top:6px">Lifeworx, Firstlight &amp; Brightstar payments and self-reimbursement status · tap any header to sort</div></div></div>
+<div class="w"><div class="cards" id="cards"></div>
+<h2>By Vendor</h2><div class="tw"><table id="vt"></table></div>
+<h2>All Payments</h2><div class="tw"><table id="pt"></table></div>
+<footer class="muted" style="margin:24px 0">Built from Care Vendor Payments.numbers</footer></div>
+<script>
+const $=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fd=s=>{const[y,m,d]=s.split('-');return `${+m}/${+d}/${y}`};
+fetch('data.json',{cache:'no-store'}).then(r=>r.json()).then(D=>{const R=D.rows;
+const tot=R.reduce((s,r)=>s+r.a,0),re=R.filter(r=>/yes/i.test(r.r)).reduce((s,r)=>s+r.a,0);
+const V=[...new Set(R.map(r=>r.v))].map(v=>{const x=R.filter(r=>r.v==v);return{v,n:x.length,a:x.reduce((s,r)=>s+r.a,0),f:x.map(r=>r.d).sort()[0],l:x.map(r=>r.d).sort().at(-1)}});
+const key=r=>r.v+r.a+r.d,cnt={};R.forEach(r=>cnt[key(r)]=(cnt[key(r)]||0)+1);
+const last=[...R].sort((a,b)=>b.d.localeCompare(a.d))[0];
+const C=(l,v,s)=>`<div class="card"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+document.getElementById('cards').innerHTML=[C('Total paid',$(tot),`${R.length} payments · ${V.length} vendors`),
+...V.map(x=>C(x.v,$(x.a),`${x.n} payments · ${(x.a/tot*100).toFixed(1)}%`)),
+C('Self-reimbursed',$(re),`${R.filter(r=>/yes/i.test(r.r)).length} of ${R.length} payments`),
+C('Latest payment',$(last.a),`${last.v} · ${fd(last.d)}`)].join('');
+document.getElementById('vt').innerHTML='<thead><tr><th>Vendor</th><th>Payments</th><th>Total</th><th>% of total</th><th>Average</th><th>First</th><th>Latest</th></tr></thead><tbody>'+
+V.map(x=>`<tr><td class="sc">${x.v}</td><td data-v="${x.n}">${x.n}</td><td data-v="${x.a}">${$(x.a)}</td><td data-v="${x.a/tot}">${(x.a/tot*100).toFixed(1)}%</td><td data-v="${x.a/x.n}">${$(x.a/x.n)}</td><td data-v="${x.f}">${fd(x.f)}</td><td data-v="${x.l}">${fd(x.l)}</td></tr>`).join('')+
+`<tr><td class="sc">Total</td><td data-v="${R.length}">${R.length}</td><td data-v="${tot}">${$(tot)}</td><td data-v="1">100%</td><td data-v="${tot/R.length}">${$(tot/R.length)}</td><td></td><td></td></tr></tbody>`;
+document.getElementById('pt').innerHTML='<thead><tr><th>Date</th><th>Vendor</th><th>Amount</th><th>Self-reimbursed</th></tr></thead><tbody>'+
+[...R].sort((a,b)=>b.d.localeCompare(a.d)).map(r=>`<tr><td data-v="${r.d}">${fd(r.d)}${cnt[key(r)]>1?' <span class="dup">⚠ same amount &amp; date twice</span>':''}</td><td>${r.v}</td><td data-v="${r.a}">${$(r.a)}</td><td class="${/yes/i.test(r.r)?'y':''}">${r.r}</td></tr>`).join('')+'</tbody>';
+});
+</script><!--SORTABLE-START--><script>
+/* Shared sortable tables (Grok Bot trackers). Click any header: asc/desc toggle with ▲/▼.
+   Works on dynamically rendered tables via event delegation. Totals (tfoot, .total/.ft/.tot rows,
+   or first cell TOTAL/ALL-TIME/GRAND) stay pinned at bottom. Group-label rows (fewer cells / colspan)
+   keep their members: sorting happens within each group. Uses td[data-v] when present.
+   Skip: th with own onclick, th.nosort, or table[data-nosort]. */
+(function(){
+  if(window.__sortableShared)return;window.__sortableShared=1;
+  var st=document.createElement('style');
+  st.textContent='table:not([data-nosort]) th:not(.nosort){cursor:pointer;user-select:none}th .srt-ar{font-size:.8em;opacity:.85;margin-left:3px}';
+  (document.head||document.documentElement).appendChild(st);
+  var MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  function key(cell){
+    if(!cell)return null;
+    var raw=cell.dataset&&cell.dataset.v!=null?cell.dataset.v:cell.textContent;
+    var s=String(raw).replace(/[▲▼]/g,'').trim();
+    if(!s||s==='—'||s==='-'||s==='–'||/^n\/?a$/i.test(s))return null;
+    var m;
+    if((m=s.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/)))return {n:Date.UTC(+m[1],+m[2]-1,+(m[3]||1))};
+    if((m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/))){var y=+m[3];if(y<100)y+=2000;return {n:Date.UTC(y,+m[1]-1,+m[2])};}
+    if((m=s.match(/^([A-Za-z]{3})[a-z]*\.? (\d{1,2}),? (\d{4})$/))&&MON[m[1].toLowerCase()])return {n:Date.UTC(+m[3],MON[m[1].toLowerCase()]-1,+m[2])};
+    if((m=s.match(/^([A-Za-z]{3})[a-z]* (\d{4})$/))&&MON[m[1].toLowerCase()])return {n:Date.UTC(+m[2],MON[m[1].toLowerCase()]-1,1)};
+    if((m=s.match(/^Q([1-4]) (\d{4})$/i)))return {n:Date.UTC(+m[2],(+m[1]-1)*3,1)};
+    var t=s.replace(/[$,%x×\s]|USD/gi,'').replace(/^\+/,'').replace(/[−–]/g,'-');
+    var neg=/^\(.*\)$/.test(t);if(neg)t=t.slice(1,-1);
+    var mult=1;if((m=t.match(/^(-?[\d.]+)([KMB])$/i))){t=m[1];mult={k:1e3,m:1e6,b:1e9}[m[2].toLowerCase()];}
+    if(/^-?\d*\.?\d+$/.test(t))return {n:parseFloat(t)*mult*(neg?-1:1)};
+    return {s:s.toLowerCase()};
+  }
+  function pinned(r){
+    if(r.parentElement&&r.parentElement.tagName==='TFOOT')return true;
+    if(/(^|\s)(total|totals|ft|tot|sum|grand|pinned)(\s|$)/i.test(r.className))return true;
+    var c=r.cells[0];return !!c&&/^\s*(TOTAL|TOTALS|ALL-TIME|GRAND TOTAL)\b/i.test(c.textContent);
+  }
+  document.addEventListener('click',function(e){
+    var th=e.target.closest&&e.target.closest('th');if(!th||th.onclick||th.classList.contains('nosort'))return;
+    var tb=th.closest('table');if(!tb||tb.hasAttribute('data-nosort'))return;
+    var hr=th.parentElement;if(hr.parentElement.tagName==='TFOOT')return;
+    var ci=0;for(var k=0;k<hr.cells.length&&hr.cells[k]!==th;k++)ci+=hr.cells[k].colSpan||1;
+    var ncol=0;for(k=0;k<hr.cells.length;k++)ncol+=hr.cells[k].colSpan||1;
+    var dir=th.dataset.sdir==='asc'?'desc':'asc',m=dir==='asc'?1:-1;
+    tb.querySelectorAll('th').forEach(function(x){delete x.dataset.sdir;var a=x.querySelector('.srt-ar');if(a)a.remove();});
+    th.dataset.sdir=dir;var ar=document.createElement('span');ar.className='srt-ar';ar.textContent=dir==='asc'?'▲':'▼';th.appendChild(ar);
+    var bodies=tb.tBodies.length?[].slice.call(tb.tBodies):[tb];
+    bodies.forEach(function(body){
+      var all=[].slice.call(body.rows).filter(function(r){return r!==hr&&!(r.cells.length&&r.cells[0].tagName==='TH'&&!r.querySelector('td'));});
+      var pins=[],groups=[{head:null,rows:[]}];
+      all.forEach(function(r){
+        if(pinned(r)){pins.push(r);return;}
+        var w=0;for(var j=0;j<r.cells.length;j++)w+=r.cells[j].colSpan||1;
+        if(r.cells.length===1&&ncol>1)groups.push({head:r,rows:[]});else groups[groups.length-1].rows.push(r);
+      });
+      function cellAt(r){var x=0;for(var j=0;j<r.cells.length;j++){if(x===ci)return r.cells[j];x+=r.cells[j].colSpan||1;}return null;}
+      groups.forEach(function(g){
+        g.rows.sort(function(a,b){var A=key(cellAt(a)),B=key(cellAt(b));
+          if(!A&&!B)return 0;if(!A)return 1;if(!B)return -1;
+          if(A.n!=null&&B.n!=null)return (A.n-B.n)*m;
+          return String(A.s!=null?A.s:A.n).localeCompare(String(B.s!=null?B.s:B.n),undefined,{numeric:true})*m;});
+        if(g.head)body.appendChild(g.head);g.rows.forEach(function(r){body.appendChild(r);});
+      });
+      pins.forEach(function(r){body.appendChild(r);});
+    });
+  },false);
+})();
+
+</script><!--SORTABLE-END-->
+</body></html>
